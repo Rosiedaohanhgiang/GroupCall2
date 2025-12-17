@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Call #2: Nghệ Thuật Chuyển Hóa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Manrope:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Font for Journey Tab -->
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        :root {
+            --gold: #D4AF37;
+            --dark-blue: #0f172a;
+            --paper: #f8fafc;
+        }
+        body { font-family: 'Manrope', sans-serif; background-color: var(--paper); color: var(--dark-blue); }
+        h1, h2, h3, .serif { font-family: 'Playfair Display', serif; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        /* Animations */
+        .fade-in { animation: fadeIn 0.6s ease-out forwards; }
+        @keyframes fadeIn { 
+            0% { opacity: 0; transform: translateY(10px) scale(0.95); } 
+            100% { opacity: 1; transform: translateY(0) scale(1); } 
+        }
+
+        .kintsugi-crack {
+            position: absolute;
+            pointer-events: none;
+            opacity: 0.1;
+            z-index: 0;
+        }
+
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.4s ease-out; }
+        
+        .btn-gold {
+            background: linear-gradient(135deg, #D4AF37 0%, #C5A028 100%);
+            color: white;
+            transition: all 0.3s;
+        }
+        .btn-gold:hover { filter: brightness(110%); box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3); }
+
+        /* Reframing Machine Styles */
+        .machine-slot {
+            background: #1e293b;
+            color: #fbbf24;
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 0 5px rgba(251, 191, 36, 0.5);
+            border: 2px solid #334155;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+        }
+        
+        .example-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-left: 3px solid #cbd5e1;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .example-card:hover {
+            border-left-color: #D4AF37;
+            background: #fffbeb;
+        }
+        .bad-thought { color: #ef4444; font-weight: 600; display: block; margin-bottom: 4px; }
+        .good-thought { color: #15803d; display: block; }
+
+        /* --- STYLES FOR JOURNEY TAB --- */
+        .journey-font { font-family: 'Oswald', sans-serif; }
+        .journey-nav-link { 
+            border-bottom: 2px solid transparent; 
+            color: #64748b; 
+            padding: 8px 12px; 
+            font-size: 0.9rem; 
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .journey-nav-link.active { 
+            border-bottom-color: #D4AF37; 
+            color: #D4AF37; 
+            background-color: #fffbeb;
+        }
+        .journey-section { display: none; }
+        .journey-section.active { display: block; animation: fadeIn 0.3s ease-out; }
+        .journey-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+         /* --- STYLES FOR FLOW TAB (Agenda) --- */
+         .agenda-item {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        .agenda-item:hover {
+            background-color: #fffbeb;
+            border-left-color: #D4AF37;
+        }
+        .agenda-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, opacity 0.4s ease-out;
+            opacity: 0;
+        }
+        .agenda-details.open {
+            opacity: 1;
+        }
+        .chevron { transition: transform 0.3s ease; }
+        .chevron.rotate { transform: rotate(180deg); }
+
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- DECORATIVE BACKGROUND ELEMENTS -->
+    <svg class="kintsugi-crack top-0 right-0 w-64 h-64 text-yellow-600" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="0.5">
+        <path d="M10,10 Q30,40 50,30 T90,80" />
+        <path d="M50,30 Q60,60 40,70" />
+    </svg>
+
+    <!-- HEADER -->
+    <header class="bg-[#0f172a] text-white sticky top-0 z-50 shadow-lg border-b border-yellow-600/30">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-700 flex items-center justify-center text-[#0f172a] font-bold text-xl">
+                    <i class="ph-fill ph-sparkle"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-bold tracking-wide">Group Call #2</h1>
+                    <p class="text-xs text-yellow-500 uppercase tracking-widest">Chuyển Hóa Thách Thức</p>
+                </div>
+            </div>
+            <div class="hidden md:block">
+                <span class="bg-white/10 px-4 py-1 rounded-full text-xs font-medium border border-white/20">Tuần 5: 24/11 - 30/11</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- NAVIGATION -->
+    <nav class="bg-white border-b sticky top-[73px] z-40 shadow-sm">
+        <div class="container mx-auto px-4 overflow-x-auto">
+            <div class="flex justify-center min-w-max">
+                <button onclick="switchTab('flow')" id="tab-flow" class="tab-btn active px-5 py-4 font-bold text-sm uppercase tracking-wider border-b-2 border-yellow-600 text-yellow-700 flex items-center gap-2 transition-colors">
+                    <i class="ph-bold ph-list-numbers"></i> Agenda
+                </button>
+                <button onclick="switchTab('mindset')" id="tab-mindset" class="tab-btn px-5 py-4 font-bold text-sm uppercase tracking-wider border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 transition-colors">
+                    <i class="ph-bold ph-brain"></i> Tư Duy
+                </button>
+                <button onclick="switchTab('cases')" id="tab-cases" class="tab-btn px-5 py-4 font-bold text-sm uppercase tracking-wider border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 transition-colors">
+                    <i class="ph-bold ph-files"></i> Case Study
+                </button>
+                <button onclick="switchTab('reframe')" id="tab-reframe" class="tab-btn px-5 py-4 font-bold text-sm uppercase tracking-wider border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 transition-colors">
+                    <i class="ph-bold ph-magic-wand"></i> Góc Chuyển Hóa
+                </button>
+                <button onclick="switchTab('journey')" id="tab-journey" class="tab-btn px-5 py-4 font-bold text-sm uppercase tracking-wider border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 transition-colors">
+                    <i class="ph-bold ph-map-trifold"></i> Lộ Trình 6 Tuần
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="container mx-auto px-4 py-8 flex-grow max-w-5xl">
+
+        <!-- TAB 0: FLOW (AGENDA) -->
+        <div id="content-flow" class="tab-content active space-y-6">
+            <div class="text-center mb-8">
+                <h2 class="serif text-3xl font-bold text-[#0f172a] mb-2">Lịch Trình Group Call #2</h2>
+                <p class="text-slate-500 italic">"Biến những sai lầm thành bài học vô giá"</p>
+                <div class="mt-4 inline-block bg-yellow-100 text-yellow-800 px-4 py-1 rounded-full text-sm font-bold border border-yellow-300">
+                    ⏱️ Thời lượng: 120 phút (2 Giờ)
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <!-- Agenda Item 1 -->
+                <div class="agenda-item p-4 border-b border-slate-100" onclick="toggleAgenda('agenda-1')">
+                    <div class="flex justify-between items-center group">
+                        <div class="flex items-center gap-4">
+                            <span class="bg-[#0f172a] text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">1</span>
+                            <div>
+                                <h4 class="font-bold text-lg text-slate-800 group-hover:text-yellow-700 transition-colors">Check-in & Kết Nối (10')</h4>
+                                <p class="text-slate-500 text-sm">Khởi động nhanh & ôn bài cũ.</p>
+                            </div>
+                        </div>
+                        <i id="icon-agenda-1" class="ph-bold ph-caret-down text-slate-400 chevron"></i>
+                    </div>
+                    <div id="agenda-1" class="agenda-details">
+                        <div class="mt-3 ml-12 p-4 bg-slate-50 rounded-lg text-sm text-slate-700 border border-slate-200">
+                            <ul class="list-disc list-inside space-y-1">
+                                <li><strong>Hoạt động:</strong> Gõ 1 từ khóa cảm xúc vào khung chat.</li>
+                                <li><strong>Ôn bài:</strong> Nhắc lại 1 khoảnh khắc "Aha!" từ tuần trước.</li>
+                                <li><strong>Mục tiêu:</strong> Làm nóng không khí để sẵn sàng chia sẻ.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agenda Item 2 -->
+                <div class="agenda-item p-4 border-b border-slate-100" onclick="toggleAgenda('agenda-2')">
+                    <div class="flex justify-between items-center group">
+                        <div class="flex items-center gap-4">
+                            <span class="bg-[#0f172a] text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">2</span>
+                            <div>
+                                <h4 class="font-bold text-lg text-slate-800 group-hover:text-yellow-700 transition-colors">Mổ Xẻ Case Study "Thất Bại" (45')</h4>
+                                <p class="text-slate-500 text-sm">Học từ sai lầm & Reframe góc nhìn.</p>
+                            </div>
+                        </div>
+                        <i id="icon-agenda-2" class="ph-bold ph-caret-down text-slate-400 chevron"></i>
+                    </div>
+                    <div id="agenda-2" class="agenda-details">
+                        <div class="mt-3 ml-12 p-4 bg-slate-50 rounded-lg text-sm text-slate-700 border border-slate-200">
+                            <ul class="list-disc list-inside space-y-1">
+                                <li><strong>Chia sẻ:</strong> 1-2 học viên chia sẻ Case "chưa như ý" (ngắn gọn trong 5 phút/người).</li>
+                                <li><strong>Group Coaching:</strong> Cả lớp cùng giảng viên đặt câu hỏi để tìm nguyên nhân gốc rễ.</li>
+                                <li><strong>Công cụ:</strong> Thực hành dùng "Máy Chuyển Đổi Góc Nhìn" ngay tại lớp.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agenda Item 3 -->
+                <div class="agenda-item p-4 border-b border-slate-100" onclick="toggleAgenda('agenda-3')">
+                    <div class="flex justify-between items-center group">
+                        <div class="flex items-center gap-4">
+                            <span class="bg-[#0f172a] text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">3</span>
+                            <div>
+                                <h4 class="font-bold text-lg text-slate-800 group-hover:text-yellow-700 transition-colors">Thực Hành Fishbowl & Sửa Lỗi (45')</h4>
+                                <p class="text-slate-500 text-sm">Giảng viên "Stop & Fix" trực tiếp trên tình huống.</p>
+                            </div>
+                        </div>
+                        <i id="icon-agenda-3" class="ph-bold ph-caret-down text-slate-400 chevron"></i>
+                    </div>
+                    <div id="agenda-3" class="agenda-details">
+                        <div class="mt-3 ml-12 p-4 bg-slate-50 rounded-lg text-sm text-slate-700 border border-slate-200">
+                            <ul class="list-disc list-inside space-y-1">
+                                <li><strong>Hình thức:</strong> Peer Coaching (1 cặp học viên) hoặc Giảng viên demo với học viên.</li>
+                                <li><strong>Phương pháp "Stop & Fix":</strong> Giảng viên sẽ hô "Tạm dừng" ngay khi Coach gặp bế tắc để sửa lỗi và thị phạm hướng đi mới.</li>
+                                <li><strong>Kỹ thuật mục tiêu:</strong> Sử dụng kỹ thuật <strong>"Phản chiếu (Mirroring)"</strong> để Coachee tự thấy vấn đề mà không cần Coach phải khuyên bảo.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agenda Item 4 -->
+                <div class="agenda-item p-4" onclick="toggleAgenda('agenda-4')">
+                    <div class="flex justify-between items-center group">
+                        <div class="flex items-center gap-4">
+                            <span class="bg-[#0f172a] text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">4</span>
+                            <div>
+                                <h4 class="font-bold text-lg text-slate-800 group-hover:text-yellow-700 transition-colors">Tổng Kết & Dặn Dò (20')</h4>
+                                <p class="text-slate-500 text-sm">Bài học cốt lõi & Hướng dẫn tuần cuối.</p>
+                            </div>
+                        </div>
+                        <i id="icon-agenda-4" class="ph-bold ph-caret-down text-slate-400 chevron"></i>
+                    </div>
+                    <div id="agenda-4" class="agenda-details">
+                        <div class="mt-3 ml-12 p-4 bg-slate-50 rounded-lg text-sm text-slate-700 border border-slate-200">
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>Tổng kết "Viên ngọc" (Bài học tâm đắc nhất) sau buổi học.</li>
+                                <li>Hướng dẫn bài tập về nhà: Phản hồi 360 độ & Chuẩn bị Lễ Tốt Nghiệp.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center pt-4">
+                <button onclick="switchTab('mindset')" class="btn-gold px-8 py-3 rounded-full font-bold shadow-lg transition transform hover:-translate-y-1">
+                    Bắt đầu phần Tư Duy <i class="ph-bold ph-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- TAB 1: TƯ DUY (MINDSET) -->
+        <div id="content-mindset" class="tab-content space-y-8">
+            <!-- Hero Section -->
+            <div class="text-center py-8">
+                <h2 class="serif text-4xl md:text-5xl font-bold text-[#0f172a] mb-4">"Vết nứt là nơi ánh sáng đi vào"</h2>
+                <p class="text-slate-600 italic text-lg">- Rumi</p>
+            </div>
+
+            <!-- Concept Cards -->
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 card-hover relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10"><i class="ph-fill ph-warning-octagon text-8xl text-red-500"></i></div>
+                    <h3 class="text-2xl font-bold text-red-800 mb-3 serif">Tư Duy Cũ (Fixed Mindset)</h3>
+                    <ul class="space-y-3 text-slate-700">
+                        <li class="flex items-start gap-2"><i class="ph-bold ph-x text-red-500 mt-1"></i> Sai lầm là dấu hiệu của sự yếu kém.</li>
+                        <li class="flex items-start gap-2"><i class="ph-bold ph-x text-red-500 mt-1"></i> Cần che giấu sai lầm càng nhanh càng tốt.</li>
+                        <li class="flex items-start gap-2"><i class="ph-bold ph-x text-red-500 mt-1"></i> Phản ứng: Đổ lỗi hoặc Tự trách.</li>
+                    </ul>
+                </div>
+                <div class="bg-[#0f172a] p-8 rounded-2xl shadow-xl card-hover relative overflow-hidden text-white">
+                    <div class="absolute top-0 right-0 p-4 opacity-10"><i class="ph-fill ph-plant text-8xl text-yellow-400"></i></div>
+                    <h3 class="text-2xl font-bold text-yellow-400 mb-3 serif">Tư Duy Kintsugi (Growth Mindset)</h3>
+                    <ul class="space-y-3 text-slate-300">
+                        <li class="flex items-start gap-2"><i class="ph-bold ph-check text-green-400 mt-1"></i> Sai lầm là dữ liệu để cải tiến.</li>
+                        <li class="flex items-start gap-2"><i class="ph-bold ph-check text-green-400 mt-1"></i> Chia sẻ sai lầm để cả team cùng học.</li>
+                        <li class="flex items-start gap-2"><i class="ph-bold ph-check text-green-400 mt-1"></i> Phản ứng: Tò mò & Phân tích.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Interactive Pulse Check -->
+            <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-xl border border-yellow-200">
+                <h3 class="font-bold text-yellow-800 mb-2 flex items-center gap-2"><i class="ph-bold ph-heartbeat"></i> Pulse Check:</h3>
+                <p class="text-slate-700 mb-4">Khi nhân viên làm sai, phản ứng đầu tiên của bạn trong tuần qua là gì?</p>
+                <div class="flex gap-2 flex-wrap">
+                    <button class="px-4 py-2 bg-white border border-yellow-300 rounded-full hover:bg-yellow-100 text-sm transition transform active:scale-95 focus:bg-yellow-100">😤 Khó chịu</button>
+                    <button class="px-4 py-2 bg-white border border-yellow-300 rounded-full hover:bg-yellow-100 text-sm transition transform active:scale-95 focus:bg-yellow-100">😟 Lo lắng</button>
+                    <button class="px-4 py-2 bg-white border border-yellow-300 rounded-full hover:bg-yellow-100 text-sm transition transform active:scale-95 focus:bg-yellow-100">🤔 Tò mò</button>
+                    <button class="px-4 py-2 bg-white border border-yellow-300 rounded-full hover:bg-yellow-100 text-sm transition transform active:scale-95 focus:bg-yellow-100">🆘 Muốn cứu ngay</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: CASE STUDY (PHÂN TÍCH) -->
+        <div id="content-cases" class="tab-content space-y-6">
+            <div class="flex items-center justify-between">
+                <h2 class="serif text-2xl font-bold text-[#0f172a]">Thư Viện Kinh Nghiệm</h2>
+                <div class="text-sm text-slate-500 italic">Chuẩn bị cho buổi Call</div>
+            </div>
+
+            <!-- Success Story -->
+            <div class="bg-white rounded-xl shadow-sm border-l-4 border-green-500 overflow-hidden">
+                <div class="bg-green-50 p-4 border-b border-green-100 flex justify-between items-center">
+                    <h3 class="font-bold text-green-800 flex items-center gap-2"><i class="ph-fill ph-trophy"></i> 1. Case Thành Công</h3>
+                    <span class="text-xs bg-white px-2 py-1 rounded text-green-600 border border-green-200">Vinh danh</span>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Tình huống & Hành động của bạn:</label>
+                        <textarea id="case-success" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-green-500 outline-none transition" rows="3" placeholder="VD: Nhân viên ngại nhận việc khó, tôi đã dùng câu hỏi khơi gợi quá khứ thành công..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Kết quả & Bài học cốt lõi:</label>
+                        <textarea id="lesson-success" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-green-500 outline-none transition" rows="2" placeholder="VD: Bạn ấy tự tin nhận việc. Bài học: Niềm tin quan trọng hơn kỹ năng..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Failure Story -->
+            <div class="bg-white rounded-xl shadow-sm border-l-4 border-red-500 overflow-hidden">
+                <div class="bg-red-50 p-4 border-b border-red-100 flex justify-between items-center">
+                    <h3 class="font-bold text-red-800 flex items-center gap-2"><i class="ph-fill ph-warning-circle"></i> 2. Case Chưa Như Ý</h3>
+                    <span class="text-xs bg-white px-2 py-1 rounded text-red-600 border border-red-200">Cần mổ xẻ</span>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Tình huống & Điều chưa ổn:</label>
+                        <textarea id="case-fail" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-red-500 outline-none transition" rows="3" placeholder="VD: Tôi hỏi 'Tại sao' quá nhiều khiến nhân viên phòng thủ..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Nếu làm lại, tôi sẽ thay đổi điều gì?</label>
+                        <textarea id="lesson-fail" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-red-500 outline-none transition" rows="2" placeholder="VD: Thay câu hỏi 'Tại sao' bằng 'Điều gì dẫn đến việc này'..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Button -->
+            <div class="flex justify-end pt-4">
+                <button onclick="copyCases()" class="btn-gold px-8 py-3 rounded-lg font-bold shadow-lg flex items-center gap-2">
+                    <i class="ph-bold ph-copy"></i> Sao chép Nội dung để Chia sẻ
+                </button>
+            </div>
+        </div>
+
+        <!-- TAB 3: GÓC CHUYỂN HÓA (REFRAMING TOOL - WOW FEATURE) -->
+        <div id="content-reframe" class="tab-content">
+            <div class="max-w-2xl mx-auto">
+                <div class="bg-[#0f172a] rounded-3xl p-1 shadow-2xl border border-slate-700 mb-10">
+                    <div class="bg-[#1e293b] rounded-[20px] p-6 md:p-10 border border-slate-700 relative overflow-hidden">
+                        
+                        <!-- Header -->
+                        <div class="text-center mb-8 relative z-10">
+                            <div class="inline-block p-3 rounded-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white mb-4 shadow-lg shadow-purple-500/30">
+                                <i class="ph-fill ph-magic-wand text-3xl"></i>
+                            </div>
+                            <h2 class="serif text-3xl font-bold text-white mb-2">Máy Chuyển Đổi Góc Nhìn</h2>
+                            <p class="text-slate-400 text-sm">Nhập một suy nghĩ tiêu cực ("Chì") và biến nó thành cơ hội ("Vàng").</p>
+                        </div>
+
+                        <!-- Input -->
+                        <div class="mb-6 relative z-10">
+                            <label class="text-xs text-slate-400 uppercase tracking-wider font-bold mb-2 block">Suy nghĩ tiêu cực / Phàn nàn:</label>
+                            <input type="text" id="negative-input" class="w-full bg-[#0f172a] border border-slate-600 rounded-xl p-4 text-white placeholder-slate-600 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 outline-none transition" placeholder="VD: Nhân viên này chậm chạp quá...">
+                        </div>
+
+                        <!-- Output Machine -->
+                        <div class="mb-8 relative z-10">
+                            <label class="text-xs text-yellow-500 uppercase tracking-wider font-bold mb-2 block flex items-center gap-2">
+                                <i class="ph-fill ph-lightning"></i> Góc nhìn Lãnh Đạo Coach:
+                            </label>
+                            <div id="reframe-output" class="machine-slot w-full min-h-[120px] rounded-xl p-4 flex items-center justify-center text-center text-lg leading-relaxed text-yellow-400">
+                                --- Bấm nút để chuyển hóa ---
+                            </div>
+                        </div>
+
+                        <!-- Button -->
+                        <div class="text-center relative z-10">
+                            <button onclick="reframeThought()" class="btn-gold px-10 py-4 rounded-full font-bold text-lg shadow-xl hover:scale-105 transform transition w-full md:w-auto">
+                                ✨ CHUYỂN HÓA NGAY
+                            </button>
+                        </div>
+
+                        <!-- Background FX -->
+                        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-[radial-gradient(circle,rgba(212,175,55,0.1)_0%,rgba(15,23,42,0)_70%)] pointer-events-none"></div>
+                    </div>
+                </div>
+
+                <!-- Manual List -->
+                <div class="mt-8">
+                    <h3 class="text-center text-slate-500 text-sm font-bold uppercase tracking-widest mb-6 border-b border-slate-200 pb-2">Kho Mẫu Chuyển Đổi Tham Khảo</h3>
+                    
+                    <div class="space-y-6 h-96 overflow-y-auto pr-2 custom-scrollbar">
+                        
+                        <!-- Group 1 -->
+                        <div>
+                            <h4 class="text-yellow-600 font-bold text-xs uppercase mb-3 flex items-center gap-2"><i class="ph-bold ph-lightning"></i> Về Năng Lực & Sai Lầm</h4>
+                            <div class="grid md:grid-cols-2 gap-3">
+                                <div class="example-card">
+                                    <span class="bad-thought">"Họ làm mãi một lỗi không sửa."</span>
+                                    <span class="good-thought">➝ "Hệ thống hướng dẫn của mình có 'lỗ hổng' nào không?"</span>
+                                </div>
+                                <div class="example-card">
+                                    <span class="bad-thought">"Họ thiếu năng lực."</span>
+                                    <span class="good-thought">➝ "Điểm mạnh thực sự của họ là gì và mình đã đặt đúng chỗ chưa?"</span>
+                                </div>
+                                <div class="example-card">
+                                    <span class="bad-thought">"Sao họ không hiểu tôi nói?"</span>
+                                    <span class="good-thought">➝ "Tôi có thể thay đổi cách truyền đạt thế nào cho phù hợp?"</span>
+                                </div>
+                                <div class="example-card">
+                                    <span class="bad-thought">"Họ quá thụ động."</span>
+                                    <span class="good-thought">➝ "Tôi đã tạo đủ không gian an toàn để họ dám quyết định chưa?"</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Group 2 -->
+                        <div>
+                            <h4 class="text-yellow-600 font-bold text-xs uppercase mb-3 flex items-center gap-2"><i class="ph-bold ph-smiley-nervous"></i> Về Thái Độ & Hành Vi</h4>
+                            <div class="grid md:grid-cols-2 gap-3">
+                                <div class="example-card">
+                                    <span class="bad-thought">"Nhân viên bướng bỉnh, hay cãi."</span>
+                                    <span class="good-thought">➝ "Họ đang tâm huyết với điều gì mà mình chưa thấy?"</span>
+                                </div>
+                                <div class="example-card">
+                                    <span class="bad-thought">"Họ lười biếng."</span>
+                                    <span class="good-thought">➝ "Điều gì đang ngăn cản dòng chảy năng lượng của họ?"</span>
+                                </div>
+                                <div class="example-card">
+                                    <span class="bad-thought">"Họ không trung thực."</span>
+                                    <span class="good-thought">➝ "Điều gì khiến họ cảm thấy không an toàn khi nói thật?"</span>
+                                </div>
+                                <div class="example-card">
+                                    <span class="bad-thought">"Họ không tôn trọng tôi."</span>
+                                    <span class="good-thought">➝ "Mình đang tìm kiếm sự tuân thủ hay sự cộng tác?"</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Group 3 -->
+                        <div>
+                            <h4 class="text-yellow-600 font-bold text-xs uppercase mb-3 flex items-center gap-2"><i class="ph-bold ph-user-focus"></i> Về Bản Thân Lãnh Đạo</h4>
+                            <div class="grid md:grid-cols-2 gap-3">
+                                <div class="example-card">
+                                    <span class="bad-thought">"Làm hộ cho nhanh."</span>
+                                    <span class="good-thought">➝ "Việc này giúp họ phát triển hay tạo ra sự phụ thuộc?"</span>
+                                </div>
+                                <div class="example-card">
+                                    <span class="bad-thought">"Sợ hỏi sai sẽ bị quê."</span>
+                                    <span class="good-thought">➝ "Sự chân thành quan trọng hơn sự hoàn hảo."</span>
+                                </div>
+                                <div class="example-card">
+                                    <span class="bad-thought">"Vấn đề này quá gấp."</span>
+                                    <span class="good-thought">➝ "Đây là lúc cứu hỏa, nhưng sau đó bài học là gì?"</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: LỘ TRÌNH 6 TUẦN (JOURNEY) - Content adapted from index.html -->
+        <div id="content-journey" class="tab-content journey-font">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <header class="text-center mb-6">
+                    <h2 class="text-2xl font-bold text-[#1a237e]">Tra Cứu Lộ Trình 6 Tuần</h2>
+                    <p class="text-sm text-slate-500">Xem lại kiến thức & công cụ nhanh</p>
+                </header>
+                
+                <!-- Internal Tab Nav for Journey -->
+                <div class="flex flex-wrap justify-center border-b border-slate-200 mb-6">
+                    <button class="journey-nav-link active" onclick="switchJourneyTab('tuan-1')">Tuần 1</button>
+                    <button class="journey-nav-link" onclick="switchJourneyTab('tuan-2-3')">Tuần 2-3</button>
+                    <button class="journey-nav-link" onclick="switchJourneyTab('tuan-4')">Tuần 4</button>
+                    <button class="journey-nav-link" onclick="switchJourneyTab('tuan-5')">Tuần 5 (Hiện tại)</button>
+                    <button class="journey-nav-link" onclick="switchJourneyTab('tuan-6')">Tuần 6</button>
+                    <button class="journey-nav-link" onclick="switchJourneyTab('cong-cu')">Kho Công Cụ</button>
+                </div>
+
+                <!-- Internal Tab Content -->
+                <div id="journey-content-wrapper">
+                    <!-- Tuần 1 -->
+                    <div id="journey-tuan-1" class="journey-section active">
+                        <div class="journey-card">
+                            <h3 class="font-bold text-[#1a237e] text-lg mb-2">Tuần 1: Kích Hoạt Hành Động</h3>
+                            <p class="text-sm text-slate-600 mb-3">Mục tiêu: Biến nguồn năng lượng hào hứng thành hành động cụ thể.</p>
+                            <div class="bg-slate-50 p-3 rounded text-sm mb-3 border-l-4 border-teal-500">
+                                <strong>Nhiệm vụ chính:</strong>
+                                <ul class="list-disc ml-5 mt-1">
+                                    <li>Lập Kế Hoạch Hành Động Cá Nhân: Xác định cam kết 30 ngày.</li>
+                                    <li>Xây dựng Hiến Chương Nhóm: Tạo vùng an toàn tâm lý.</li>
+                                    <li>Check-in cuối tuần: Phản tư và ghi nhận tiến bộ nhỏ.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tuần 2-3 -->
+                    <div id="journey-tuan-2-3" class="journey-section">
+                        <div class="journey-card">
+                            <h3 class="font-bold text-[#1a237e] text-lg mb-2">Tuần 2-3: Group Call #1 - Cùng Nhau Vượt Khó</h3>
+                            <p class="text-sm text-slate-600 mb-3">Mục tiêu: Học hỏi từ thách thức, chuẩn bị tâm thế Coaching.</p>
+                            <div class="bg-slate-50 p-3 rounded text-sm mb-3 border-l-4 border-indigo-500">
+                                <strong>Hoạt động chính:</strong>
+                                <ul class="list-disc ml-5 mt-1">
+                                    <li>Thực hiện buổi Coaching 1:1 đầu tiên với nhân viên.</li>
+                                    <li>Tham gia Group Call #1 để chia sẻ và học hỏi.</li>
+                                    <li>Sử dụng Template Chia Sẻ để cấu trúc bài học.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tuần 4 -->
+                    <div id="journey-tuan-4" class="journey-section">
+                        <div class="journey-card">
+                            <h3 class="font-bold text-[#1a237e] text-lg mb-2">Tuần 4: Peer Coaching - Vòng Luyện Tập</h3>
+                            <p class="text-sm text-slate-600 mb-3">Mục tiêu: Mài giũa kỹ năng trong môi trường an toàn.</p>
+                            <div class="bg-slate-50 p-3 rounded text-sm mb-3 border-l-4 border-orange-500">
+                                <strong>Hoạt động chính:</strong>
+                                <ul class="list-disc ml-5 mt-1">
+                                    <li>Thực hành Coaching theo nhóm 3 (Coach - Coachee - Observer).</li>
+                                    <li>Sử dụng Phiếu Phản Hồi để góp ý dựa trên quan sát thực tế.</li>
+                                    <li>Tự đánh giá sau buổi thực hành để nhận diện điểm mạnh/yếu.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                     <!-- Tuần 5 -->
+                     <div id="journey-tuan-5" class="journey-section">
+                        <div class="journey-card border-yellow-400 border-2">
+                            <h3 class="font-bold text-[#1a237e] text-lg mb-2">Tuần 5: Group Call #2 - Chuyển Hóa (TUẦN NÀY)</h3>
+                            <p class="text-sm text-slate-600 mb-3">Mục tiêu: Biến sai lầm thành bài học kinh nghiệm sâu sắc.</p>
+                            <div class="bg-yellow-50 p-3 rounded text-sm mb-3 border-l-4 border-yellow-600">
+                                <strong>Trọng tâm:</strong>
+                                <ul class="list-disc ml-5 mt-1">
+                                    <li>Phân tích Case Study thành công & thất bại.</li>
+                                    <li>Thực hành Reframe (Chuyển đổi góc nhìn) từ tiêu cực sang tích cực.</li>
+                                    <li>Chuẩn bị tâm thế cho lễ tốt nghiệp.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tuần 6 -->
+                     <div id="journey-tuan-6" class="journey-section">
+                        <div class="journey-card">
+                            <h3 class="font-bold text-[#1a237e] text-lg mb-2">Tuần 6: Tổng Kết & Hướng Về Phía Trước (01/12 - 07/12)</h3>
+                            <p class="text-sm text-slate-600 mb-3">Mục tiêu: Ghi nhận hành trình, đo lường sự chuyển đổi và cam kết cho chặng đường tiếp theo.</p>
+                            <div class="bg-purple-50 p-3 rounded text-sm mb-3 border-l-4 border-purple-500">
+                                <strong>Hoạt động về đích:</strong>
+                                <ul class="list-disc ml-5 mt-1 space-y-1">
+                                    <li><strong>Tự đánh giá lần cuối:</strong> Làm lại bài đánh giá năng lực để so sánh sự tiến bộ với Tuần 1.</li>
+                                    <li><strong>Phản hồi 360 độ:</strong> Nhận feedback ẩn danh từ nhân viên về sự thay đổi của bạn.</li>
+                                    <li><strong>Cam kết tương lai:</strong> Xác định 1 hành động để duy trì thói quen Coaching trong 3 tháng tới.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Công Cụ -->
+                    <div id="journey-cong-cu" class="journey-section">
+                        <div class="journey-card">
+                            <h3 class="font-bold text-teal-600 text-lg mb-2">Mô Hình GROW</h3>
+                            <div class="text-sm text-slate-700 grid gap-2">
+                                <div class="bg-slate-50 p-2 rounded"><strong>G - Goal:</strong> Bạn muốn đạt được điều gì?</div>
+                                <div class="bg-slate-50 p-2 rounded"><strong>R - Reality:</strong> Chuyện gì đang thực sự diễn ra?</div>
+                                <div class="bg-slate-50 p-2 rounded"><strong>O - Options:</strong> Bạn có những lựa chọn nào?</div>
+                                <div class="bg-slate-50 p-2 rounded"><strong>W - Will:</strong> Bạn cam kết làm gì?</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- TOAST -->
+    <div id="toast" class="fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-[#0f172a] text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 transition-all duration-300 opacity-0 translate-y-10 z-50">
+        <i class="ph-fill ph-check-circle text-green-400"></i>
+        <span id="toast-msg">Đã sao chép!</span>
+    </div>
+
+    <script>
+        // --- TAB LOGIC ---
+        function switchTab(id) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active', 'border-yellow-600', 'text-yellow-700');
+                btn.classList.add('border-transparent', 'text-slate-500');
+            });
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            const activeBtn = document.getElementById('tab-' + id);
+            activeBtn.classList.remove('border-transparent', 'text-slate-500');
+            activeBtn.classList.add('active', 'border-yellow-600', 'text-yellow-700');
+            document.getElementById('content-' + id).classList.add('active');
+        }
+
+        // --- AGENDA TOGGLE LOGIC ---
+        function toggleAgenda(id) {
+            const details = document.getElementById(id);
+            const icon = document.getElementById('icon-' + id);
+            
+            // Toggle open class
+            if (details.style.maxHeight) {
+                details.style.maxHeight = null;
+                details.classList.remove('open');
+                icon.classList.remove('rotate');
+            } else {
+                details.style.maxHeight = details.scrollHeight + "px";
+                details.classList.add('open');
+                icon.classList.add('rotate');
+            }
+        }
+
+        // --- JOURNEY TAB LOGIC ---
+        function switchJourneyTab(id) {
+            // Remove active from all nav links
+            document.querySelectorAll('.journey-nav-link').forEach(link => link.classList.remove('active'));
+            // Hide all sections
+            document.querySelectorAll('.journey-section').forEach(sec => sec.classList.remove('active'));
+            
+            // Add active to current
+            event.target.classList.add('active');
+            document.getElementById('journey-' + id).classList.add('active');
+        }
+
+        // --- TOAST LOGIC ---
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.classList.remove('opacity-0', 'translate-y-10');
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-10');
+            }, 3000);
+        }
+
+        // --- REFRAME LOGIC (UPDATED DATABASE) ---
+        const reframes = [
+            // Nhóm Tư Duy
+            "Điều này dạy cho tôi bài học gì về cách hướng dẫn nhân viên?",
+            "Nếu tôi nhìn sự việc này với sự tò mò thay vì phán xét, tôi sẽ thấy gì?",
+            "Tôi không cần phải có mọi câu trả lời. Tôi chỉ cần đặt câu hỏi đúng.",
+            "Thay vì hỏi 'Tại sao sai?', hãy hỏi 'Làm thế nào để tốt hơn?'",
+            
+            // Nhóm Thái Độ
+            "Sự kháng cự là dấu hiệu cho thấy họ cần được lắng nghe và thấu hiểu hơn.",
+            "Họ đang tâm huyết với điều gì mà mình chưa nhìn thấy?",
+            "Điều gì đang ngăn cản dòng chảy động lực của họ (Sợ hãi? Thiếu rõ ràng?)",
+            "Mình đang tìm kiếm sự tuân thủ hay sự cộng tác?",
+            "Điều gì khiến họ cảm thấy không an toàn khi nói sự thật với mình?",
+
+            // Nhóm Năng Lực
+            "Hệ thống hướng dẫn của mình có 'lỗ hổng' nào khiến họ dễ mắc lỗi này không?",
+            "Điểm mạnh thực sự của họ là gì và mình đã đặt họ đúng chỗ chưa?",
+            "Mình có thể thay đổi cách truyền đạt thế nào để phù hợp với ngôn ngữ của họ?",
+            "Mình đã tạo đủ không gian an toàn để họ dám đưa ra quyết định chưa?",
+            "Nếu mình tin rằng họ đang cố gắng hết sức, mình sẽ cư xử khác đi thế nào?",
+
+            // Nhóm Thời Gian/Áp Lực
+            "Việc làm hộ này đang giúp họ phát triển hay tạo ra sự phụ thuộc vào tôi?",
+            "Đầu tư thời gian bây giờ để tiết kiệm gấp đôi thời gian sửa sai sau này.",
+            "Đây là cơ hội để rèn luyện sự kiên nhẫn và kỹ năng trao quyền.",
+            "Thách thức này là cơ hội tốt nhất để cả hai cùng trưởng thành.",
+            "Sự im lặng của họ đang nói lên điều gì?",
+            "Mình đang lắng nghe để phản hồi hay lắng nghe để thấu hiểu?"
+        ];
+
+        function reframeThought() {
+            const input = document.getElementById('negative-input').value;
+            const output = document.getElementById('reframe-output');
+            
+            if (!input.trim()) {
+                output.innerText = "Hãy nhập suy nghĩ của bạn trước!";
+                output.classList.add('text-red-400');
+                return;
+            }
+
+            output.classList.remove('text-red-400');
+            output.innerHTML = '<span class="animate-pulse">Đang phân tích...</span>';
+            
+            // Animation reset trick
+            output.classList.remove('fade-in');
+            
+            setTimeout(() => {
+                const randomReframe = reframes[Math.floor(Math.random() * reframes.length)];
+                output.innerText = `"${randomReframe}"`;
+                void output.offsetWidth; // Force reflow
+                output.classList.add('fade-in');
+            }, 800);
+        }
+
+        // --- COPY LOGIC ---
+        function copyCases() {
+            const sCase = document.getElementById('case-success').value;
+            const sLesson = document.getElementById('lesson-success').value;
+            const fCase = document.getElementById('case-fail').value;
+            const fLesson = document.getElementById('lesson-fail').value;
+
+            const text = `CASE STUDY GROUP CALL #2\n----------------------\n🏆 CASE THÀNH CÔNG:\n- Tình huống: ${sCase}\n- Bài học: ${sLesson}\n\n⚠️ CASE CẦN HỌC HỎI:\n- Tình huống: ${fCase}\n- Nếu làm lại: ${fLesson}`;
+            
+            navigator.clipboard.writeText(text).then(() => showToast("Đã sao chép nội dung Case Study!"));
+        }
+    </script>
+</body>
+</html>
